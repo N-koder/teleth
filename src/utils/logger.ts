@@ -62,7 +62,6 @@ export const logger = {
   debug: (msg: string, ...meta: any[]) => baseLogger.debug(msg, ...meta),
 
   tg: (action: string, user: string, details?: string, durationMs?: number) => {
-    const ts = `${ANSI.gray}[${getTimestamp()}]${ANSI.reset}`;
     const badge = `${ANSI.cyan}${ANSI.bold}[TG IN]${ANSI.reset}`;
     const userTag = `${ANSI.white}${user}${ANSI.reset}`;
     const actionTag = `${ANSI.brightCyan}${action}${ANSI.reset}`;
@@ -74,33 +73,29 @@ export const logger = {
         : "";
     const extra = details ? ` ${ANSI.dim}• ${details}${ANSI.reset}` : "";
 
-    console.log(`${ts} ⚡ ${badge} ${userTag} │ ${actionTag}${durationTag}${extra}`);
+    baseLogger.info(`⚡ ${badge} ${userTag} │ ${actionTag}${durationTag}${extra}`);
   },
 
   platform: (user: string, platform: string) => {
-    const ts = `${ANSI.gray}[${getTimestamp()}]${ANSI.reset}`;
     const badge = `${ANSI.magenta}${ANSI.bold}[PLATFORM]${ANSI.reset}`;
-    console.log(
-      `${ts} 🔄 ${badge} ${user} switched active launchpad to: ${ANSI.brightMagenta}${platform.toUpperCase()}${ANSI.reset}`
+    baseLogger.info(
+      `🔄 ${badge} ${user} switched active launchpad to: ${ANSI.brightMagenta}${platform.toUpperCase()}${ANSI.reset}`
     );
   },
 
   wallet: (msg: string) => {
-    const ts = `${ANSI.gray}[${getTimestamp()}]${ANSI.reset}`;
     const badge = `${ANSI.blue}${ANSI.bold}[WALLET]${ANSI.reset}`;
-    console.log(`${ts} 💳 ${badge} ${msg}`);
+    baseLogger.info(`💳 ${badge} ${msg}`);
   },
 
   withdraw: (msg: string) => {
-    const ts = `${ANSI.gray}[${getTimestamp()}]${ANSI.reset}`;
     const badge = `${ANSI.yellow}${ANSI.bold}[WITHDRAW]${ANSI.reset}`;
-    console.log(`${ts} 📤 ${badge} ${msg}`);
+    baseLogger.info(`📤 ${badge} ${msg}`);
   },
 
   launch: (msg: string) => {
-    const ts = `${ANSI.gray}[${getTimestamp()}]${ANSI.reset}`;
     const badge = `${ANSI.brightGreen}${ANSI.bold}[LAUNCH]${ANSI.reset}`;
-    console.log(`${ts} 🚀 ${badge} ${msg}`);
+    baseLogger.info(`🚀 ${badge} ${msg}`);
   },
 
   launchReceipt: (info: {
@@ -115,37 +110,33 @@ export const logger = {
     txHash: string;
     initialBuyEth: string;
   }) => {
-    const ts = `${ANSI.gray}[${getTimestamp()}]${ANSI.reset}`;
-    console.log(
-      `\n${ts} ${ANSI.brightGreen}${ANSI.bold}┏━━━━━━━━━━━━━━━━━━━ 🚀 LIVE TOKEN DEPLOYED ━━━━━━━━━━━━━━━━━━━┓${ANSI.reset}\n` +
-        `${ts} ${ANSI.brightGreen}┃${ANSI.reset} 👤 User          : ${ANSI.white}${info.user}${ANSI.reset}\n` +
-        `${ts} ${ANSI.brightGreen}┃${ANSI.reset} 🌐 Launchpad     : ${ANSI.brightMagenta}${info.platform.toUpperCase()}${ANSI.reset}${info.modeLabel ? ` (${info.modeLabel})` : ""}\n` +
-        `${ts} ${ANSI.brightGreen}┃${ANSI.reset} 🏷️  Token         : ${ANSI.brightYellow}${info.tokenName} ($${info.tokenSymbol})${ANSI.reset} / ${info.pairSymbol} (First Buy: ${info.initialBuyEth} ETH)\n` +
-        `${ts} ${ANSI.brightGreen}┃${ANSI.reset} 🔷 EVM CA        : ${ANSI.brightCyan}${info.evmCa}${ANSI.reset}\n` +
+    baseLogger.info(
+      `\n${ANSI.brightGreen}${ANSI.bold}┏━━━━━━━━━━━━━━━━━━━ 🚀 LIVE TOKEN DEPLOYED ━━━━━━━━━━━━━━━━━━━┓${ANSI.reset}\n` +
+        `${ANSI.brightGreen}┃${ANSI.reset} 👤 User          : ${ANSI.white}${info.user}${ANSI.reset}\n` +
+        `${ANSI.brightGreen}┃${ANSI.reset} 🌐 Launchpad     : ${ANSI.brightMagenta}${info.platform.toUpperCase()}${ANSI.reset}${info.modeLabel ? ` (${info.modeLabel})` : ""}\n` +
+        `${ANSI.brightGreen}┃${ANSI.reset} 🏷️  Token         : ${ANSI.brightYellow}${info.tokenName} ($${info.tokenSymbol})${ANSI.reset} / ${info.pairSymbol} (First Buy: ${info.initialBuyEth} ETH)\n` +
+        `${ANSI.brightGreen}┃${ANSI.reset} 🔷 EVM CA        : ${ANSI.brightCyan}${info.evmCa}${ANSI.reset}\n` +
         (info.solanaMint
-          ? `${ts} ${ANSI.brightGreen}┃${ANSI.reset} 🟣 Solana OFT CA : ${ANSI.brightMagenta}${info.solanaMint}${ANSI.reset}\n`
+          ? `${ANSI.brightGreen}┃${ANSI.reset} 🟣 Solana OFT CA : ${ANSI.brightMagenta}${info.solanaMint}${ANSI.reset}\n`
           : "") +
-        `${ts} ${ANSI.brightGreen}┃${ANSI.reset} 🔗 Tx Hash       : ${ANSI.dim}${info.txHash}${ANSI.reset}\n` +
-        `${ts} ${ANSI.brightGreen}${ANSI.bold}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${ANSI.reset}\n`
+        `${ANSI.brightGreen}┃${ANSI.reset} 🔗 Tx Hash       : ${ANSI.dim}${info.txHash}${ANSI.reset}\n` +
+        `${ANSI.brightGreen}${ANSI.bold}┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${ANSI.reset}`
     );
   },
 
   wizard: (user: string, step: string, detail?: string) => {
-    const ts = `${ANSI.gray}[${getTimestamp()}]${ANSI.reset}`;
     const badge = `${ANSI.brightYellow}${ANSI.bold}[WIZARD]${ANSI.reset}`;
     const extra = detail ? ` ${ANSI.dim}→ ${detail}${ANSI.reset}` : "";
-    console.log(`${ts} 🧭 ${badge} ${ANSI.white}${user}${ANSI.reset} │ ${step}${extra}`);
+    baseLogger.info(`🧭 ${badge} ${ANSI.white}${user}${ANSI.reset} │ ${step}${extra}`);
   },
 
   admin: (msg: string) => {
-    const ts = `${ANSI.gray}[${getTimestamp()}]${ANSI.reset}`;
     const badge = `${ANSI.magenta}${ANSI.bold}[ADMIN]${ANSI.reset}`;
-    console.log(`${ts} 🛡️ ${badge} ${msg}`);
+    baseLogger.info(`🛡️ ${badge} ${msg}`);
   },
 
   rpc: (msg: string) => {
-    const ts = `${ANSI.gray}[${getTimestamp()}]${ANSI.reset}`;
     const badge = `${ANSI.cyan}[RPC]${ANSI.reset}`;
-    console.log(`${ts} 🌐 ${badge} ${msg}`);
+    baseLogger.info(`🌐 ${badge} ${msg}`);
   },
 };

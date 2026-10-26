@@ -146,6 +146,7 @@ export function createBot(): Bot<BotContext> {
       : "Unknown";
 
     const { label: actionLabel, detail: actionDetail } = describeTelegramAction(ctx);
+    logger.info(`📥 [TG IN] ${userTag} │ ${actionLabel} • ${actionDetail}`);
 
     try {
       await next();

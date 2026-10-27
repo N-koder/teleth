@@ -89,7 +89,10 @@ async function handleExternalNavigation(ctx: Context, data: string): Promise<boo
  * Builds the comprehensive Quote Pair Keyboard (ETH, USDC, PEPE, Native Platform Token, and Ondo Tokenized Stocks)
  * supported across Pangea.trade, Stockereum.com, Sender.family, and Programmable.market
  */
-function buildQuotePairKeyboard(platform: LaunchPlatform): InlineKeyboard {
+function buildQuotePairKeyboard(
+  platform: LaunchPlatform,
+  tab: "crypto" | "stocks" = "crypto"
+): InlineKeyboard {
   const nativeTokenBtn =
     platform === "pangea"
       ? { label: "🌍 PANGEA ($PANGEA)", key: "PANGEA" }
@@ -99,47 +102,67 @@ function buildQuotePairKeyboard(platform: LaunchPlatform): InlineKeyboard {
       ? { label: "📡 SEND ($SEND)", key: "SEND" }
       : { label: "🦄 V4 ($V4)", key: "V4" };
 
-  return new InlineKeyboard()
-    .text("Ξ ETH (Native / WETH)", "pair_sel_ETH")
-    .text("💵 USDC", "pair_sel_USDC")
-    .row()
-    .text(nativeTokenBtn.label, `pair_sel_${nativeTokenBtn.key}`)
-    .text("💵 USDT", "pair_sel_USDT")
-    .row()
-    .text("💹 SPX6900 ($SPX)", "pair_sel_SPX")
-    .text("🐸 PEPE", "pair_sel_PEPE")
-    .row()
-    .text("₿ WBTC", "pair_sel_WBTC")
-    .text("🐕 SHIB", "pair_sel_SHIB")
-    .row()
-    .text("🏛️ NVDAon (NVIDIA)", "pair_sel_NVDAon")
-    .text("🏛️ TSLAon (Tesla)", "pair_sel_TSLAon")
-    .row()
-    .text("🏛️ AAPLon (Apple)", "pair_sel_AAPLon")
-    .text("🚀 SPCXon (SpaceX)", "pair_sel_SPCXon")
-    .row()
-    .text("🏛️ MSFTon (Microsoft)", "pair_sel_MSFTon")
-    .text("🏛️ AMZNon (Amazon)", "pair_sel_AMZNon")
-    .row()
-    .text("🏛️ GOOGLon (Google)", "pair_sel_GOOGLon")
-    .text("🏛️ METAon (Meta)", "pair_sel_METAon")
-    .row()
-    .text("🏛️ MSTRon (MicroStrategy)", "pair_sel_MSTRon")
-    .text("🏛️ COINon (Coinbase)", "pair_sel_COINon")
-    .row()
-    .text("🏛️ PLTRon (Palantir)", "pair_sel_PLTRon")
-    .text("🏛️ AMDon (AMD)", "pair_sel_AMDon")
-    .row()
-    .text("🏛️ GMEon (GameStop)", "pair_sel_GMEon")
-    .text("🏛️ HOODon (Robinhood)", "pair_sel_HOODon")
-    .row()
-    .text("📊 SPYon (S&P 500)", "pair_sel_SPYon")
-    .text("📊 QQQon (Nasdaq 100)", "pair_sel_QQQon")
-    .row()
-    .text("🥇 GLDon (Gold RWA)", "pair_sel_GLDon")
-    .text("🥈 SLVon (Silver RWA)", "pair_sel_SLVon")
-    .row()
-    .text("✕ Cancel", "cancel_launch");
+  const kb = new InlineKeyboard();
+
+  if (tab === "crypto") {
+    kb.text("🔘 🪙 CRYPTO PAIRS", "tab_noop")
+      .text("⚪ 🏛️ STOCKS & RWAs ➔", "tab_pair_stocks")
+      .row()
+      .text("💹 SPX6900 ($SPX)", "pair_sel_SPX")
+      .text("Ξ ETH (Native / WETH)", "pair_sel_ETH")
+      .row()
+      .text("💵 USDC", "pair_sel_USDC")
+      .text("💵 USDT", "pair_sel_USDT")
+      .row()
+      .text("🐸 PEPE", "pair_sel_PEPE")
+      .text("₿ WBTC", "pair_sel_WBTC")
+      .row()
+      .text("🐕 SHIB", "pair_sel_SHIB")
+      .text("😹 MOG", "pair_sel_MOG")
+      .row()
+      .text("🔗 LINK (Chainlink)", "pair_sel_LINK")
+      .text(nativeTokenBtn.label, `pair_sel_${nativeTokenBtn.key}`)
+      .row()
+      .text("🏛️ View Tokenized Stocks Tab ➔", "tab_pair_stocks")
+      .row()
+      .text("✕ Cancel", "cancel_launch");
+  } else {
+    kb.text("⚪ 🪙 CRYPTO PAIRS ➔", "tab_pair_crypto")
+      .text("🔘 🏛️ STOCKS & RWAs", "tab_noop")
+      .row()
+      .text("🏛️ NVDAon (NVIDIA)", "pair_sel_NVDAon")
+      .text("🏛️ TSLAon (Tesla)", "pair_sel_TSLAon")
+      .row()
+      .text("🏛️ AAPLon (Apple)", "pair_sel_AAPLon")
+      .text("🚀 SPCXon (SpaceX)", "pair_sel_SPCXon")
+      .row()
+      .text("🏛️ MSFTon (Microsoft)", "pair_sel_MSFTon")
+      .text("🏛️ AMZNon (Amazon)", "pair_sel_AMZNon")
+      .row()
+      .text("🏛️ GOOGLon (Google)", "pair_sel_GOOGLon")
+      .text("🏛️ METAon (Meta)", "pair_sel_METAon")
+      .row()
+      .text("🏛️ MSTRon (MicroStrategy)", "pair_sel_MSTRon")
+      .text("🏛️ COINon (Coinbase)", "pair_sel_COINon")
+      .row()
+      .text("🏛️ PLTRon (Palantir)", "pair_sel_PLTRon")
+      .text("🏛️ AMDon (AMD)", "pair_sel_AMDon")
+      .row()
+      .text("🏛️ GMEon (GameStop)", "pair_sel_GMEon")
+      .text("🏛️ HOODon (Robinhood)", "pair_sel_HOODon")
+      .row()
+      .text("📊 SPYon (S&P 500)", "pair_sel_SPYon")
+      .text("📊 QQQon (Nasdaq 100)", "pair_sel_QQQon")
+      .row()
+      .text("🥇 GLDon (Gold RWA)", "pair_sel_GLDon")
+      .text("🥈 SLVon (Silver RWA)", "pair_sel_SLVon")
+      .row()
+      .text("🪙 View Crypto Pairs Tab ➔", "tab_pair_crypto")
+      .row()
+      .text("✕ Cancel", "cancel_launch");
+  }
+
+  return kb;
 }
 
 /**
@@ -153,7 +176,7 @@ async function promptPairSelection(
   tokenSymbol: string,
   stepLabel: string
 ): Promise<SyntheticAssetPair | null> {
-  const pairKb = buildQuotePairKeyboard(platform);
+  let currentTab: "crypto" | "stocks" = "crypto";
   const nativeSym =
     platform === "pangea"
       ? "PANGEA"
@@ -163,16 +186,24 @@ async function promptPairSelection(
       ? "SEND"
       : "V4";
 
-  await ctx.reply(
+  const getPromptText = (tab: "crypto" | "stocks") =>
     `🪙 <b>${escapeHtml(specName.toUpperCase())}</b>\n` +
-      `${stepLabel} • Liquidity Pair (Quote Asset)\n\n` +
-      `Select the asset to pair with <code>$${escapeHtml(tokenSymbol)}</code> in its permanent Uniswap V4 pool:\n` +
-      `• <b>Culture & Meme:</b> <code>SPX6900</code>, <code>PEPE</code>, <code>SHIB</code>, <code>MOG</code>\n` +
-      `• <b>Core Crypto:</b> <code>ETH</code>, <code>USDC</code>, <code>USDT</code>, <code>WBTC</code>, <code>$${nativeSym}</code>\n` +
-      `• <b>Tokenized Stocks (Ondo RWA):</b> <code>NVDAon</code>, <code>TSLAon</code>, <code>AAPLon</code>, <code>SPCXon</code>, etc.\n\n` +
-      `<i>💡 <b>Universal Pair Support:</b> Tap any pair below, type any ticker (e.g. <code>SPX</code>, <code>MOG</code>), OR paste <b>ANY ERC-20 contract address</b> (e.g. <code>0x...</code>) to pair with any token on Ethereum!</i>`,
-    { parse_mode: "HTML", reply_markup: pairKb }
-  );
+    `${stepLabel} • Liquidity Pair (Quote Asset)\n\n` +
+    `Select the asset to pair with <code>$${escapeHtml(tokenSymbol)}</code> in its permanent Uniswap V4 pool:\n\n` +
+    (tab === "crypto"
+      ? `<b>[ 🪙 CRYPTO PAIRS TAB ]</b> (Tap button to view Stocks)\n` +
+        `• <b>Culture & Meme:</b> <code>SPX6900</code>, <code>PEPE</code>, <code>SHIB</code>, <code>MOG</code>\n` +
+        `• <b>Core Crypto:</b> <code>ETH</code>, <code>USDC</code>, <code>USDT</code>, <code>WBTC</code>, <code>LINK</code>, <code>$${nativeSym}</code>\n\n`
+      : `<b>[ 🏛️ TOKENIZED STOCKS TAB ]</b> (Tap button to view Crypto)\n` +
+        `• <b>Big Tech & AI:</b> <code>NVDAon</code>, <code>TSLAon</code>, <code>AAPLon</code>, <code>MSFTon</code>, <code>AMZNon</code>\n` +
+        `• <b>Crypto Equities & Space:</b> <code>SPCXon</code>, <code>MSTRon</code>, <code>COINon</code>, <code>HOODon</code>\n` +
+        `• <b>Indices & Metals:</b> <code>SPYon</code>, <code>QQQon</code>, <code>GLDon</code>, <code>SLVon</code>\n\n`) +
+    `<i>💡 <b>Universal Pairing:</b> Tap any pair above, toggle tabs, type any ticker (e.g. <code>SPX</code>, <code>NVDA</code>), OR paste <b>ANY ERC-20 contract address</b> (e.g. <code>0x...</code>) to pair with any token on Ethereum!</i>`;
+
+  const promptMsg = await ctx.reply(getPromptText(currentTab), {
+    parse_mode: "HTML",
+    reply_markup: buildQuotePairKeyboard(platform, currentTab),
+  });
 
   while (true) {
     const upd = await conversation.waitFor(["callback_query:data", "message:text"]);
@@ -184,6 +215,32 @@ async function promptPairSelection(
         return null;
       }
       if (await handleExternalNavigation(upd, data)) return null;
+
+      // Handle Tab Switching (Crypto vs Stocks)
+      if (data === "tab_pair_crypto") {
+        currentTab = "crypto";
+        await ctx.api
+          .editMessageText(ctx.chat!.id, promptMsg.message_id, getPromptText("crypto"), {
+            parse_mode: "HTML",
+            reply_markup: buildQuotePairKeyboard(platform, "crypto"),
+          })
+          .catch(() => {});
+        continue;
+      }
+      if (data === "tab_pair_stocks") {
+        currentTab = "stocks";
+        await ctx.api
+          .editMessageText(ctx.chat!.id, promptMsg.message_id, getPromptText("stocks"), {
+            parse_mode: "HTML",
+            reply_markup: buildQuotePairKeyboard(platform, "stocks"),
+          })
+          .catch(() => {});
+        continue;
+      }
+      if (data === "tab_noop") {
+        continue;
+      }
+
       if (data.startsWith("pair_sel_")) {
         const key = data.replace("pair_sel_", "");
         return STOKERIUM_ASSET_PAIRS[key] || STOKERIUM_ASSET_PAIRS.ETH;

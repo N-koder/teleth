@@ -133,6 +133,22 @@ export const STOKERIUM_ASSET_PAIRS: Record<string, SyntheticAssetPair> = {
     initialTick: -250000,
     badge: "😹 MOG",
   },
+  LINK: {
+    symbol: "LINK",
+    name: "Chainlink",
+    category: "core",
+    address: "0x514910771AF9Ca656af840dff83E8264EcF986CA" as Address,
+    initialTick: -200000,
+    badge: "🔗 LINK",
+  },
+  UNI: {
+    symbol: "UNI",
+    name: "Uniswap",
+    category: "core",
+    address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984" as Address,
+    initialTick: -200000,
+    badge: "🦄 UNI",
+  },
   PANGEA: {
     symbol: "PANGEA",
     name: "Pangea.trade ($PANGEA)",

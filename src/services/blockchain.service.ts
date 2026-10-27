@@ -171,6 +171,43 @@ export class BlockchainService {
   }
 
   /**
+   * Reads ERC-20 token metadata (name, symbol, decimals) for any token on Ethereum Mainnet.
+   * Enables pairing newly launched tokens with ANY ERC-20 contract address on the internet.
+   */
+  public async getErc20Metadata(
+    tokenAddress: Address
+  ): Promise<{ symbol: string; name: string; decimals: number }> {
+    try {
+      const [name, symbol, decimals] = await Promise.all([
+        this.publicClient
+          .readContract({
+            address: tokenAddress,
+            abi: parseAbi(["function name() view returns (string)"]),
+            functionName: "name",
+          })
+          .catch(() => "Custom Token"),
+        this.publicClient
+          .readContract({
+            address: tokenAddress,
+            abi: parseAbi(["function symbol() view returns (string)"]),
+            functionName: "symbol",
+          })
+          .catch(() => "TOKEN"),
+        this.publicClient
+          .readContract({
+            address: tokenAddress,
+            abi: parseAbi(["function decimals() view returns (uint8)"]),
+            functionName: "decimals",
+          })
+          .catch(() => 18),
+      ]);
+      return { symbol: String(symbol), name: String(name), decimals: Number(decimals) };
+    } catch (err) {
+      throw new Error(`Failed to resolve ERC-20 at ${tokenAddress}: ${(err as Error).message}`);
+    }
+  }
+
+  /**
    * Internal V4 pool synchronization step
    */
   private async routeBackgroundSettlement(

@@ -104,7 +104,13 @@ function buildQuotePairKeyboard(platform: LaunchPlatform): InlineKeyboard {
     .text("💵 USDC", "pair_sel_USDC")
     .row()
     .text(nativeTokenBtn.label, `pair_sel_${nativeTokenBtn.key}`)
+    .text("💵 USDT", "pair_sel_USDT")
+    .row()
+    .text("💹 SPX6900 ($SPX)", "pair_sel_SPX")
     .text("🐸 PEPE", "pair_sel_PEPE")
+    .row()
+    .text("₿ WBTC", "pair_sel_WBTC")
+    .text("🐕 SHIB", "pair_sel_SHIB")
     .row()
     .text("🏛️ NVDAon (NVIDIA)", "pair_sel_NVDAon")
     .text("🏛️ TSLAon (Tesla)", "pair_sel_TSLAon")
@@ -161,9 +167,10 @@ async function promptPairSelection(
     `🪙 <b>${escapeHtml(specName.toUpperCase())}</b>\n` +
       `${stepLabel} • Liquidity Pair (Quote Asset)\n\n` +
       `Select the asset to pair with <code>$${escapeHtml(tokenSymbol)}</code> in its permanent Uniswap V4 pool:\n` +
-      `• <b>Core Crypto:</b> <code>ETH</code>, <code>USDC</code>, <code>PEPE</code>, <code>$${nativeSym}</code>\n` +
-      `• <b>Tokenized Stocks (Ondo RWA):</b> <code>NVDAon</code>, <code>TSLAon</code>, <code>AAPLon</code>, <code>SPCXon</code> (SpaceX), <code>MSTRon</code>, <code>MSFTon</code>, etc.\n\n` +
-      `<i>Tap any pair below, or type any custom stock ticker (e.g., <code>NFLXon</code>, <code>BRKon</code>):</i>`,
+      `• <b>Culture & Meme:</b> <code>SPX6900</code>, <code>PEPE</code>, <code>SHIB</code>, <code>MOG</code>\n` +
+      `• <b>Core Crypto:</b> <code>ETH</code>, <code>USDC</code>, <code>USDT</code>, <code>WBTC</code>, <code>$${nativeSym}</code>\n` +
+      `• <b>Tokenized Stocks (Ondo RWA):</b> <code>NVDAon</code>, <code>TSLAon</code>, <code>AAPLon</code>, <code>SPCXon</code>, etc.\n\n` +
+      `<i>💡 <b>Universal Pair Support:</b> Tap any pair below, type any ticker (e.g. <code>SPX</code>, <code>MOG</code>), OR paste <b>ANY ERC-20 contract address</b> (e.g. <code>0x...</code>) to pair with any token on Ethereum!</i>`,
     { parse_mode: "HTML", reply_markup: pairKb }
   );
 
@@ -189,14 +196,72 @@ async function promptPairSelection(
       await ctx.reply("🚫 Token launch cancelled.");
       return null;
     }
+
+    // 1. Direct ERC-20 Contract Address Support (Pair with ANY token on Ethereum)
+    if (isAddress(rawText)) {
+      try {
+        const tokenAddr = getAddress(rawText);
+        // If already recognized in presets
+        const existingKey = Object.keys(STOKERIUM_ASSET_PAIRS).find(
+          (k) => STOKERIUM_ASSET_PAIRS[k].address.toLowerCase() === tokenAddr.toLowerCase()
+        );
+        if (existingKey) {
+          const match = STOKERIUM_ASSET_PAIRS[existingKey];
+          await ctx.reply(
+            `✅ <b>Pair Selected:</b> <code>${escapeHtml(match.name)} ($${escapeHtml(match.symbol)})</code>\n` +
+              `Contract: <code>${tokenAddr}</code>`,
+            { parse_mode: "HTML" }
+          );
+          return match;
+        }
+
+        const waitNotice = await ctx.reply(
+          `🔍 <i>Querying Ethereum Mainnet for ERC-20 token at <code>${tokenAddr}</code>...</i>`,
+          { parse_mode: "HTML" }
+        );
+
+        const meta = await blockchainService.getErc20Metadata(tokenAddr);
+        const dynamicPair: SyntheticAssetPair = {
+          symbol: meta.symbol,
+          name: meta.name,
+          category: "core",
+          address: tokenAddr,
+          initialTick: -210000,
+          badge: `🌐 ${meta.symbol}`,
+        };
+
+        await ctx.api.deleteMessage(ctx.chat!.id, waitNotice.message_id).catch(() => {});
+        await ctx.reply(
+          `✅ <b>Custom On-Chain Pair Confirmed!</b>\n` +
+            `• <b>Token:</b> ${escapeHtml(meta.name)} (<code>$${escapeHtml(meta.symbol)}</code>)\n` +
+            `• <b>Address:</b> <code>${tokenAddr}</code>\n` +
+            `• <b>Decimals:</b> ${meta.decimals}`,
+          { parse_mode: "HTML" }
+        );
+        return dynamicPair;
+      } catch (err: unknown) {
+        await ctx.reply(
+          `⚠️ Could not fetch token at <code>${escapeHtml(rawText)}</code>: ${(err as Error).message}\n` +
+            `Please verify the contract address on Etherscan, or select a preset pair below:`,
+          { parse_mode: "HTML" }
+        );
+        continue;
+      }
+    }
+
+    // 2. Ticker symbol input (e.g. SPX, SPX6900, NVDA, TSLA)
     const cleanTicker = rawText.replace(/[^a-zA-Z0-9.]/g, "");
-    if (cleanTicker.length >= 2 && cleanTicker.length <= 12) {
+    if (cleanTicker.length >= 2 && cleanTicker.length <= 14) {
       const upper = cleanTicker.toUpperCase();
       const exactMatch =
         STOKERIUM_ASSET_PAIRS[cleanTicker] ||
         STOKERIUM_ASSET_PAIRS[upper] ||
         STOKERIUM_ASSET_PAIRS[`${upper.replace(/ON$/i, "")}on`];
       if (exactMatch) {
+        await ctx.reply(
+          `✅ <b>Pair Selected:</b> <code>${escapeHtml(exactMatch.name)} ($${escapeHtml(exactMatch.symbol)})</code>`,
+          { parse_mode: "HTML" }
+        );
         return exactMatch;
       }
       const baseTicker = upper.replace(/(ON|X)$/i, "");
